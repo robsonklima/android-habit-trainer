@@ -4,21 +4,21 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import br.com.robsonlima.habittrainer.db.HabitDbTable
 import kotlinx.android.synthetic.main.activity_create_habit.*
+import kotlinx.android.synthetic.main.single_card.*
 import java.io.IOException
 
 class CreateHabitActivity : AppCompatActivity() {
 
     private val TAG = CreateHabitActivity::class.java.simpleName
-
     private val CHOOSE_IMAGE_REQUEST = 1
-
     private var imageBitmap: Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,8 +48,17 @@ class CreateHabitActivity : AppCompatActivity() {
             return
         }
 
-        tv_error.visibility = View.INVISIBLE
-        //store the habit
+        val title = et_title.text.toString()
+        val description = et_description.text.toString()
+        val habit = Habit(title, description, imageBitmap!!)
+        val id = HabitDbTable(this).store(habit)
+
+        if (id == -1L) {
+            displayErrorMessage("Habit could not be stored")
+        } else {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun displayErrorMessage(message: String) {
